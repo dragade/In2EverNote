@@ -5,10 +5,10 @@
 	<classpathentry kind="src" path="gae-1.4"/><classpathentry kind="src" path="scala-0.8"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/Users/dragade/Play/play-1.1.1/framework/play.jar" sourcepath="/Users/dragade/Play/play-1.1.1/framework" />
-	<classpathentry kind="lib" path="/Users/dragade/Play/Projects/In2EverNote/lib/scribe-1.1.0.jar"/>
-	<classpathentry kind="lib" path="/Users/dragade/Play/Projects/In2EverNote/lib/libthrift.jar"/>
 	<classpathentry kind="lib" path="/Users/dragade/Play/Projects/In2EverNote/lib/evernote-api-1.19.jar"/>
+	<classpathentry kind="lib" path="/Users/dragade/Play/Projects/In2EverNote/lib/libthrift.jar"/>
 	<classpathentry kind="lib" path="/Users/dragade/Play/Projects/In2EverNote/lib/log4j-1.2.14.jar"/>
+	<classpathentry kind="lib" path="/Users/dragade/Play/Projects/In2EverNote/lib/scribe-1.1.0.jar"/>
 	<classpathentry kind="lib" path="/Users/dragade/Play/play-1.1.1/modules/gae-1.4/lib/appengine-api-1.0-sdk-1.4.0.jar"/>
 	<classpathentry kind="lib" path="/Users/dragade/Play/play-1.1.1/modules/gae-1.4/lib/appengine-api-labs-1.4.0.jar"/>
 	<classpathentry kind="lib" path="/Users/dragade/Play/play-1.1.1/modules/gae-1.4/lib/appengine-jsr107cache-1.4.0.jar"/>

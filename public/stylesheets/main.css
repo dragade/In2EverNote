@@ -1,0 +1,32 @@
+.intro-text {
+    display: block;
+    text-align: center;
+    width: 422px;
+    height: auto;
+    margin: 0 auto;
+    padding-top: 0px;
+    margin-bottom: 0px;
+    font-weight: bold;
+    font-family: Arial;
+    font-size: 14px;
+    background: none;
+    border: none;
+}
+.centered-img {
+    display: block;
+    text-align: center;
+    height: auto;
+    margin: 0 auto;
+    padding-top: 0px;
+    margin-bottom: 0px;
+    background: none;
+    border: none;
+}
+.left-img {
+    height: auto;
+    margin: 0 auto;
+    background: none;
+    border: none;
+    float: left;
+    margin-right: 20px;
+}

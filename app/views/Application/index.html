@@ -1,17 +1,11 @@
 #{extends 'main.html' /}
 #{set title:'Home' /}
-<h1>
-    Welcome to In2EverNote
-</h1>
-<p>
-    This is a sample web mashup utility written in scala with the Play! Framework running on Google App Engine.
-</p>
-<p>
-    First login to LinkedIn (using oauth)
-    Then enter in your evernote username and password -- we do not store your evernote username or password.
 
-    You will then be able to save important shares from people in your LinkedIn network to EverNote.
-</p>
-<p>
-    <a href="/application/shares"><img src="/public/images/log-in-linkedin-large.png"/></a>
-</p>
+<img class="centered-img" src="public/images/evernote-top.png">
+<a href="/application/evernoteindex">
+    <img class="centered-img" src="/public/images/log-in-linkedin-large.png"/></a>
+<ol class="intro-text">
+    <li> Login to LinkedIn</li>
+    <li> Login to EverNote</li>
+    <li> Drag and Drop Shares to EverNote</li>
+</ol>
