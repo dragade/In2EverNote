@@ -22,8 +22,10 @@ import com.evernote.edam.userstore._
 import com.evernote.edam.error._
 import com.evernote.edam.userstore.Constants
 import com.evernote.edam.notestore._
-
 import scala.collection.JavaConversions._
+import com.evernote.edam.`type`.{Note, Notebook}
+;
+
 
 /**
  * The main controller for the application.
@@ -36,7 +38,7 @@ import scala.collection.JavaConversions._
  */
 object Application extends Controller {
 
-  val inDebugMode = true
+  val inDebugMode = false
   println("InDebugMode = " + inDebugMode)
 
   // Values stored in the session
@@ -44,6 +46,10 @@ object Application extends Controller {
   val KEY_REQUEST_TOKEN_SECRET = "requestTokenSecret"
   val KEY_ACCESS_TOKEN = "accessToken"
   val KEY_ACCESS_TOKEN_SECRET = "accessTokenSecret"
+  val KEY_EVERNOTE_TOKEN = "evernoteToken"
+  val KEY_EVERNOTE_SHARD_ID = "evernoteShardID"
+  val KEY_EVERNOTE_NOTEBOOK_GUID = "evernoteNBGUID"
+
 
   //supposed to be thread safe
   val oauthService = new ServiceBuilder()
@@ -64,11 +70,6 @@ object Application extends Controller {
   val userAgent = "Evernote/EDAMDemo (Java) " +
                   Constants.EDAM_VERSION_MAJOR + "." +
                   Constants.EDAM_VERSION_MINOR;
-
-  var userStore :  UserStore.Client = null
-  var noteStore : NoteStore.Client = null
-  var authToken : String = null
-  var newNoteGuid : String = null
 
   /**
    * Shows the main intro page (no need to authenticate here)
@@ -312,86 +313,102 @@ object Application extends Controller {
       Template(numNotebooks)
     }
     else {
-    val userStoreTrans = new THttpClient(userStoreUrl);
-    userStoreTrans.setCustomHeader("User-Agent", userAgent);
-    val userStoreProt = new TBinaryProtocol(userStoreTrans);
-    userStore = new UserStore.Client(userStoreProt, userStoreProt);
+      var userStore :  UserStore.Client = null
+      var authToken : String = null
+      var newNoteGuid : String = null
 
-    // Check that we can talk to the server
-    val versionOk = userStore.checkVersion("Evernote EDAMDemo (Java)",
-        com.evernote.edam.userstore.Constants.EDAM_VERSION_MAJOR,
-        com.evernote.edam.userstore.Constants.EDAM_VERSION_MINOR);
-    if (!versionOk) {
-      throw new RuntimeException("Incomatible EDAM client protocol version");
-    }
+      val userStoreTrans = new THttpClient(userStoreUrl);
+      userStoreTrans.setCustomHeader("User-Agent", userAgent);
+      val userStoreProt = new TBinaryProtocol(userStoreTrans);
+      userStore = new UserStore.Client(userStoreProt, userStoreProt);
 
-    // Authenticate using username & password
-    var authResult : com.evernote.edam.userstore.AuthenticationResult = null;
-    try {
-      authResult = userStore.authenticate(username, password, ApiKeys.everNoteApiKey, ApiKeys.everNoteSecretKey);
-    } catch {
-      case ex : EDAMUserException =>
-      // Note that the error handling here is far more detailed than you would
-      // provide to a real user. It is intended to give you an idea of why the
-      // sample application isn't able to authenticate to our servers.
-
-      // Any time that you contact us about a problem with an Evernote API,
-      // please provide us with the exception parameter and errorcode.
-      val parameter = ex.getParameter();
-      val errorCode = ex.getErrorCode();
-
-      System.err.println("Authentication failed (parameter: " + parameter + " errorCode: " + errorCode + ")");
-
-      if (errorCode == EDAMErrorCode.INVALID_AUTH) {
-        if (parameter.equals("consumerKey")) {
-          System.err.println("Your consumer key was not accepted by " + evernoteHost);
-          System.err.println("This sample client application requires a client API key. If you requested a web service API key, you must authenticate using OAuth as shown in sample/java/oauth");
-          System.err.println("If you do not have an API Key from Evernote, you can request one from http://www.evernote.com/about/developer/api");
-        } else if (parameter.equals("username")) {
-          System.err.println("You must authenticate using a username and password from " + evernoteHost);
-          if (evernoteHost.equals("www.evernote.com") == false) {
-            System.err.println("Note that your production Evernote account will not work on " + evernoteHost + ",");
-            System.err.println("you must register for a separate test account at https://" + evernoteHost + "/Registration.action");
-          }
-        } else if (parameter.equals("password")) {
-          System.err.println("The password that you entered is incorrect");
-        }
+      // Check that we can talk to the server
+      val versionOk = userStore.checkVersion("Evernote EDAMDemo (Java)",
+          com.evernote.edam.userstore.Constants.EDAM_VERSION_MAJOR,
+          com.evernote.edam.userstore.Constants.EDAM_VERSION_MINOR);
+      if (!versionOk) {
+        throw new RuntimeException("Incomatible EDAM client protocol version");
       }
 
-      throw new RuntimeException("failed to auth to evernote");
+      // Authenticate using username & password
+      var authResult : com.evernote.edam.userstore.AuthenticationResult = null;
+      try {
+        authResult = userStore.authenticate(username, password, ApiKeys.everNoteApiKey, ApiKeys.everNoteSecretKey);
+      } catch {
+        case ex : EDAMUserException =>
+        // Note that the error handling here is far more detailed than you would
+        // provide to a real user. It is intended to give you an idea of why the
+        // sample application isn't able to authenticate to our servers.
+
+        // Any time that you contact us about a problem with an Evernote API,
+        // please provide us with the exception parameter and errorcode.
+        val parameter = ex.getParameter();
+        val errorCode = ex.getErrorCode();
+
+        System.err.println("Authentication failed (parameter: " + parameter + " errorCode: " + errorCode + ")");
+
+        if (errorCode == EDAMErrorCode.INVALID_AUTH) {
+          if (parameter.equals("consumerKey")) {
+            System.err.println("Your consumer key was not accepted by " + evernoteHost);
+            System.err.println("This sample client application requires a client API key. If you requested a web service API key, you must authenticate using OAuth as shown in sample/java/oauth");
+            System.err.println("If you do not have an API Key from Evernote, you can request one from http://www.evernote.com/about/developer/api");
+          } else if (parameter.equals("username")) {
+            System.err.println("You must authenticate using a username and password from " + evernoteHost);
+            if (evernoteHost.equals("www.evernote.com") == false) {
+              System.err.println("Note that your production Evernote account will not work on " + evernoteHost + ",");
+              System.err.println("you must register for a separate test account at https://" + evernoteHost + "/Registration.action");
+            }
+          } else if (parameter.equals("password")) {
+            System.err.println("The password that you entered is incorrect");
+          }
+        }
+
+        throw new RuntimeException("failed to auth to evernote");
+      }
+
+      // The result of a succesful authentication is an opaque authentication token
+      // that you will use in all subsequent API calls. If you are developing a
+      // web application that authenticates using OAuth, the OAuth access token
+      // that you receive would be used as the authToken in subsquent calls.
+      authToken = authResult.getAuthenticationToken();
+      session.put(KEY_EVERNOTE_TOKEN,authToken)
+
+      // The Evernote NoteStore allows you to accessa user's notes.
+      // In order to access the NoteStore for a given user, you need to know the
+      // logical "shard" that their notes are stored on. The shard ID is included
+      // in the URL used to access the NoteStore.
+      val user = authResult.getUser();
+      val shardId = user.getShardId();
+      session.put(KEY_EVERNOTE_SHARD_ID, shardId)
+      System.out.println("Successfully authenticated as " + user.getUsername());
+
+      val noteStore = getNoteStore();
+      val linkedInNotebook = findLinkedInNotebook(noteStore);
+      val linkedInNotebookGuid = linkedInNotebook.getGuid
+      session.put(KEY_EVERNOTE_NOTEBOOK_GUID, linkedInNotebookGuid)
+
+      val notebooks = noteStore.listNotebooks(authToken);
+      val numNotebooks = notebooks.size
+      println("There are " + numNotebooks + "notebooks. In2EverNote guid is " + linkedInNotebookGuid)
+      Template(numNotebooks, linkedInNotebookGuid)
     }
+  }
 
-    // The result of a succesful authentication is an opaque authentication token
-    // that you will use in all subsequent API calls. If you are developing a
-    // web application that authenticates using OAuth, the OAuth access token
-    // that you receive would be used as the authToken in subsquent calls.
-    authToken = authResult.getAuthenticationToken();
-
-    // The Evernote NoteStore allows you to accessa user's notes.
-    // In order to access the NoteStore for a given user, you need to know the
-    // logical "shard" that their notes are stored on. The shard ID is included
-    // in the URL used to access the NoteStore.
-    val user = authResult.getUser();
-    val shardId = user.getShardId();
-
-    System.out.println("Successfully authenticated as " + user.getUsername());
-
-    // Set up the NoteStore client
+  /**
+   * Pulls needed values from the session and creates a NoteStore client for EverNote
+   */
+  def getNoteStore() : NoteStore.Client = {
+    val authToken = session.get(KEY_EVERNOTE_TOKEN);
+    val shardId = session.get(KEY_EVERNOTE_SHARD_ID);
     val noteStoreUrl = noteStoreUrlBase + shardId;
     val noteStoreTrans = new THttpClient(noteStoreUrl);
     noteStoreTrans.setCustomHeader("User-Agent", userAgent);
     val noteStoreProt = new TBinaryProtocol(noteStoreTrans);
-    noteStore = new NoteStore.Client(noteStoreProt, noteStoreProt);
-    val notebooks = noteStore.listNotebooks(authToken);
-    val numNotebooks = notebooks.size
-
-    listNotes();
-    Template(numNotebooks)
-    }
+    new NoteStore.Client(noteStoreProt, noteStoreProt);
   }
 
 
-  case class SaveNoteResult(numShares: Int, didSave: Boolean)
+  case class SaveNoteResult(guid: String, didSave: Boolean)
 
   /**
    * Saves the share to EverNote (We look it back up to avoid letting someone "save" a fake share.
@@ -404,8 +421,20 @@ object Application extends Controller {
     //now go through the shares and find the updateKey
     val enml = makeENML(noteHtml)
     println("Created enml:\n" + enml);
-    val numNotes = 5
-    val result = SaveNoteResult(numNotes,true)
+
+    //now try to save the note to our In2EverNote Notebook
+    val evernoteToken = session.get(KEY_EVERNOTE_TOKEN)
+    val noteStore  = getNoteStore()
+    val linkedInNotebook = findLinkedInNotebook(noteStore);
+
+    val note = new Note()
+    note.setTitle("foo bar " + System.currentTimeMillis())
+    note.setContent(enml)
+    note.setNotebookGuid(session.get(KEY_EVERNOTE_NOTEBOOK_GUID))
+
+    val newNote = noteStore.createNote(evernoteToken, note);
+    println("Created new note with guid " + newNote.getGuid)
+    val result = SaveNoteResult(newNote.getGuid,true)
     Json(result)
   }
 
@@ -413,20 +442,58 @@ object Application extends Controller {
    * Since EverNote ML is similar to XHTML, we can just re-use the display of the note!
    */
   def makeENML(noteHtml : String) : String = {
-    val header = """
-       |<?xml version="1.0" encoding="UTF-8"?>
-       |<!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd">
-       |<en-note>
-       """
-    header.stripMargin + noteHtml + "\n</en-note>"
+    println("Got noteHtml:\n" + noteHtml)
+
+    //strip out the classes
+    val c1 = noteHtml.replace("class=\"user-pic\"","").
+      replace("class=\"thumbnail\"","").
+      replace("class=\"comment\"","")
+
+    val sb = new StringBuilder(c1)
+
+    //have to add in </img>
+    val idx1 = sb.indexOf("<img")
+    if (idx1 > -1) {
+      val idx2 = sb.indexOf(">", idx1)
+      sb.insert(idx2 + 1, "</img>")
+
+      val idx3 = sb.indexOf("<img", idx2)
+      if (idx3 > -1) {
+        val idx4 = sb.indexOf(">", idx3)
+        sb.insert(idx4 + 1, "</img>")
+      }
+    }
+
+    val content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+        "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">" +
+        "<en-note>" +
+        sb.toString +
+        "</en-note>";
+    content
+  }
+
+  def findLinkedInNotebook(noteStore : NoteStore.Client) : Notebook = {
+    val authToken = session.get(KEY_EVERNOTE_TOKEN)
+    val notebooks = noteStore.listNotebooks(authToken);
+    var ourbooks = notebooks.filter(n => {"In2EverNote" == n.getName})
+    if (ourbooks.isEmpty) {
+      val ourbook = new Notebook
+      ourbook.setName("In2EverNote")
+      noteStore.createNotebook(authToken, ourbook);
+      println("Created notebook " + ourbook.getName + " with guid " + ourbook.getGuid)
+      ourbook
+    }
+    else ourbooks.head
   }
 
   /**
    * Retrieve and display a list of the user's notes.
    */
   def listNotes() {
+    val authToken = session.get(KEY_EVERNOTE_TOKEN)
     // List all of the notes in the user's account
     System.out.println("Listing all notes:");
+    val noteStore = getNoteStore()
 
     // First, get a list of all notebooks
     val notebooks = noteStore.listNotebooks(authToken);
