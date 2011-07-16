@@ -68,10 +68,11 @@ function mainParse(data) {
     $('#shares').html(shareList);
     console.log("There are " + numShares + " shares");
 
-    var eat = ['yum!', 'gulp', 'burp!', 'nom'];
     var yum = document.createElement('p');
     var msie = /*@cc_on!@*/0;
     yum.style.opacity = 1;
+    yum.style.color = "#069";
+
 
     var links = document.querySelectorAll('li > span'), el = null;
     console.log("there are " + links.length + " links");
@@ -136,7 +137,8 @@ function mainParse(data) {
         }, 100);
 
         y.style.opacity = 0;
-      }, 1000);
+
+      }, 3000);
 
       return false;
     });

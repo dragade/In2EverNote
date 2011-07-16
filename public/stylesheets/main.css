@@ -132,6 +132,16 @@ h1 {
   background: none;
 }
 
+h2 {
+  text-align: center;
+  height: auto;
+  margin: 0 auto;
+  padding-top: 0px;
+  margin-bottom: 0px;
+  background: none;
+}
+
+
 #shares {
   margin-top: 0;
   vertical-align: top;
@@ -143,4 +153,28 @@ h1 {
 
 .hidden {
     display: none;
+}
+
+.two {
+    font-size: 60px;
+    font-weight: bold;
+}
+
+#intro {
+    background: url('/public/images/greenbg.png');
+    -moz-background-size: 100% 100%;
+    Firefox 3.6 background-size: 100% 100%;
+    background-repeat:repeat;
+    background-position:center;
+}
+
+.login-img {
+    display: block;
+    text-align: center;
+    height: auto;
+    margin: 0 auto;
+    padding-top: 0px;
+    margin-bottom: 0px;
+    background: none;
+    border: none;
 }

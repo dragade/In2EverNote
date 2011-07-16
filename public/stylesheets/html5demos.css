@@ -13,12 +13,13 @@ section, header, footer {
 #wrapper {
   width: 720px;
   margin: 0 auto;
-  background: #fff url(/public/images/shade.jpg) repeat-x center bottom;
+  background: #fff ;
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
   border-radius: 10px;
   border-top: 1px solid #fff;
   padding-bottom: 76px;
+  margin-bottom: 40px;
 }
 
 h1 {
