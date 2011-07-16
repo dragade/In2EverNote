@@ -2,14 +2,15 @@
 #{set title:'Home' /}
 
 <img class="left-img" src="/public/images/evernote_notes.png">
-<p>
-    <img src="${myProfile.picture}"/> ${myProfile.firstName} ${myProfile.lastName}<br/>
+<p class="intro-text">
+    <img height="40" width="40" src="${myProfile.picture}"/> ${myProfile.firstName} ${myProfile.lastName}<br/>
     You are logged into LinkedIn. <br/>
     Now connect to EverNote.<br/>
 
-Need a <a href="http://sandbox.evernote.com/" target="_blank">SANDBOX evernote account</a>?<br/>
+Need a <a href="http://sandbox.evernote.com/" target="_blank">SANDBOX evernote account</a>?
+    <br/><br/>
 
-<form method="POST" action="/application/evernote">
+<form class="intro-text" method="POST" action="/application/evernote">
     EverNote username: <input type="text" name="username"/><br/>
     EverNote password: <input type="password" name="password"/><br/>
     <input type="submit" value="Login to EverNote"/>
