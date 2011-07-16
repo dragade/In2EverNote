@@ -272,7 +272,8 @@ object Application extends Controller {
     })
   }
 
-  case class Share(val firstName: String, val lastName: String, val headline :String, val submittedUrl :String, val title:String)
+  case class Share(val firstName: String, val lastName: String, val headline :String, val submittedUrl :String,
+                   val title:String, val comment: String)
 
   private def parseNusXml(apiResponse: String) : Seq[Share]= {
 //    val xml = XML.loadString(apiResponse)
@@ -281,7 +282,7 @@ object Application extends Controller {
 //      val firstName = (p \ "first-name").text
 //      val lastName = (p \ "last-name").text
 //      val picture = (p \ "picture-url").text
-//      Person(firstName, lastName, picture)
+//      Share(firstName, lastName, headline)
 //    })
     List()
   }
@@ -395,11 +396,29 @@ object Application extends Controller {
   /**
    * Saves the share to EverNote (We look it back up to avoid letting someone "save" a fake share.
    */
-  def savenote(updateKey : String) = {
+  def savenote(noteHtml : String) = {
 //    val restUrl = "http://api.linkedin.com/v1/people/~/network/updates?type=SHAR&format=json"
 //    val apiResponse = makeApiCall(token, restUrl)
-    val result = SaveNoteResult(5,true)
+//    val shares = parseNusXml(apiResponse)
+
+    //now go through the shares and find the updateKey
+    val enml = makeENML(noteHtml)
+    println("Created enml:\n" + enml);
+    val numNotes = 5
+    val result = SaveNoteResult(numNotes,true)
     Json(result)
+  }
+
+  /**
+   * Since EverNote ML is similar to XHTML, we can just re-use the display of the note!
+   */
+  def makeENML(noteHtml : String) : String = {
+    val header = """
+       |<?xml version="1.0" encoding="UTF-8"?>
+       |<!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd">
+       |<en-note>
+       """
+    header.stripMargin + noteHtml + "\n</en-note>"
   }
 
   /**

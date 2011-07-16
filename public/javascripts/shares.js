@@ -8,9 +8,14 @@ function handlePersonImageError(source){
     return true;
 }
 
+function handleSaveResult(result) {
+    console.log("Got save result " + JSON.stringify(result));
+}
 
-function saveToEverNote(updateKey) {
-    console.log("Just dropped share " + updateKey);
+function saveToEverNote(el) {
+    noteHtml = el.innerHTML
+    console.log("Saving dropped share " + noteHtml);
+    $.post('/application/savenote', { noteHtml: noteHtml }, handleSaveResult);
 }
 
 
@@ -103,8 +108,9 @@ function mainParse(data) {
       var el = document.getElementById(shareID);
       el.parentNode.removeChild(el);
 
+
       //make the ajax call here to save the share
-      saveToEverNote(shareID)
+      saveToEverNote(el)
 
       // stupid nom text + fade effect
       bin.className = '';
