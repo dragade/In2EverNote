@@ -8,15 +8,46 @@ function handlePersonImageError(source){
     return true;
 }
 
+shareList = '<ul>';
+
 
 function mainParse(data) {
-    console.log("json I got back: " + JSON.stringify(data));
+/*    console.log("json I got back: " + JSON.stringify(data)); */
     $.each(data.values, function(valueidx, value){
-        console.log("Got value " + valueidx);
-        console.log("value == " + value.updateKey);
+        var firstName, lastName, pictureUrl, title, submittedUrl, thumbnailUrl;
+        person = value.updateContent.person;
+        if (person) {
+          firstName = person.firstName;
+          lastName = person.lastName;
+          pictureUrl = person.pictureUrl;
+
+          if (person.currentShare) {
+              content = person.currentShare.content;
+              if (content) {
+                  title = content.title;
+                  submittedUrl = content.submittedUrl;
+                  thumbnailUrl = content.thumbnailUrl;
+                  shareList += '<li><span id="' + valueidx + '">';
+                  shareList += '<img class="user-pic" height="40" width="40" src="' + pictureUrl + '"/>';
+                  shareList += firstName + ' ' + lastName + ' &#0187 ';
+                  shareList += '<a href="' + submittedUrl + '" target="_blank">';
+                  shareList += '<img class="thumbnail" height="40" src="' + thumbnailUrl  + '"/>';
+                  shareList += title;
+                  shareList += '</a>\n</li>';
+              }
+          }
+          else {
+            console.log("no share for " + valueidx);
+          }
+        }
     });
+    shareList += '</ul>';
+
+    $('#shares').html(shareList);
 }
 
 $(function(){
 	$.getJSON('/application/shares', mainParse)
 });
+
+
