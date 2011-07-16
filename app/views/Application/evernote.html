@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset=utf-8 />
-<meta name="viewport" content="width=620" />
 <title>In2EverNote</title>
 <link rel="stylesheet" href="/public/stylesheets/html5demos.css" type="text/css" />
 <script src="/public/javascripts/jquery-1.4.2.min.js"></script>
@@ -18,14 +17,34 @@ li {
   list-style: none;
 }
 
-li a {
+li span {
   text-decoration: none;
   color: #000;
   margin: 10px;
-  width: 150px;
   border: 3px dashed #999;
   background: #eee;
-  padding: 10px;
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px;
+}
+
+li span a {
+  font-size: 10px;
+  text-decoration: none;
+}
+
+li span .user-pic {
+  float: left;
+  margin-right: 5px;
+  vertical-align: top;
+  display: block;
+}
+
+li span .thumbnail {
+  vertical-align: top;
+  display: inline-block;
+  float: right;
+  margin-right: 5px;
   display: block;
 }
 
@@ -39,17 +58,13 @@ li a {
   background-color: rgba(238,238,238, 0.5);
 }
 
-li a:hover:after {
-  content: ' (drag me)';
-}
-
 ul {
   margin-left: 250px;
   min-height: 300px;
 }
 
 li.over {
-  border-color: #333;
+  border-color: yellow;
   background: #ccc;
 }
 
@@ -86,8 +101,15 @@ li.over {
   <div id="bin"></div>
   <div id="shares">
       <ul>
-        <li><a id="one" href="#">one</a></li>
-        <li><a href="#" id="two">two</a></li>
+        <li><span id="one">
+            <img class="user-pic" height="40" width="40" src="http://media.linkedin.com/mpr/mprx/0_iIoQnZ2F6hqJoH0YTSRvnV2I6b39eHmYTWOJnRxUJCz6BuMO7DVE4UIvHdTdIf7tGHHZMySI3vlA">
+
+            Mario Sundar &#0187;
+            <a href="http://lnkd.in/m6XwQq" target="_blank">
+                <img class="thumbnail" src="http://media.linkedin.com/media-proxy/ext?w=80&h=100&hash=z9pYXP8kuX2Qqgcuc4NQKz1gbLU%3D&url=http%3A%2F%2Fthenextweb.com%2Flocation%2Fwp-content%2Fthemes%2Ftnw_5%2Fimages%2Fplaceholder.jpg"/>
+                Is Mike Arrington launching a...</a>
+        </li>
+        <li><span id="two" href="#">number two</span></li>
       </ul>
   </div>
 </article>
@@ -98,7 +120,7 @@ li.over {
   var msie = /*@cc_on!@*/0;
   yum.style.opacity = 1;
 
-  var links = document.querySelectorAll('li > a'), el = null;
+  var links = document.querySelectorAll('li > span'), el = null;
   for (var i = 0; i < links.length; i++) {
     el = links[i];
 
