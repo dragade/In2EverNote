@@ -28,7 +28,7 @@ function mainParse(data) {
         var updateKey, firstName, lastName, pictureUrl, title, submittedUrl, thumbnailUrl, comment, headline, memberid;
         updateKey = value.updateKey;
         person = value.updateContent.person;
-        if (person) {
+        if (numShares < 10 && person) {
           firstName = person.firstName;
           lastName = person.lastName;
           pictureUrl = person.pictureUrl;

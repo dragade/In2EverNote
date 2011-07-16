@@ -6,12 +6,16 @@
     margin: 0 auto;
     padding-top: 0px;
     margin-bottom: 0px;
-    font-weight: bold;
     font-family: Arial;
-    font-size: 16px;
+    font-size: 20px;
     background: none;
     border: none;
 }
+
+.intro-text .fine-print {
+    font-size: 12px;
+}
+
 .centered-img {
     display: block;
     text-align: center;
@@ -39,6 +43,8 @@ li .drag-span {
   text-decoration: none;
   color: #000;
   border: 3px dashed #999;
+  /*border-radius: 25px;*/
+  /*-moz-border-radius: 25px; *//* Firefox 3.6 and earlier */
   background: #eee;
   display: inline-block;
   font-size: 10px;

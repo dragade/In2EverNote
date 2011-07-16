@@ -242,7 +242,7 @@ object Application extends Controller {
   def shares(oauth_token: String, oauth_verifier: String) = {
     def doShares(token: Token): Result = {
       println("Getting ready to make an NUS SHAR call")
-      val restUrl = "http://api.linkedin.com/v1/people/~/network/updates?type=SHAR&format=json"
+      val restUrl = "http://api.linkedin.com/v1/people/~/network/updates?type=SHAR&format=json&count=50"
       val apiResponse = makeApiCall(token, restUrl)
       Json(apiResponse)
     }
