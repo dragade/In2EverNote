@@ -25,13 +25,15 @@ numShares = 0;
 function mainParse(data) {
 /*    console.log("json I got back: " + JSON.stringify(data)); */
     $.each(data.values, function(valueidx, value){
-        var updateKey, firstName, lastName, pictureUrl, title, submittedUrl, thumbnailUrl, comment;
+        var updateKey, firstName, lastName, pictureUrl, title, submittedUrl, thumbnailUrl, comment, headline, memberid;
         updateKey = value.updateKey;
         person = value.updateContent.person;
         if (person) {
           firstName = person.firstName;
           lastName = person.lastName;
           pictureUrl = person.pictureUrl;
+          headline = person.headline;
+          memberid = person.id;
 
           if (person.currentShare) {
               content = person.currentShare.content;
@@ -40,9 +42,11 @@ function mainParse(data) {
                   submittedUrl = content.submittedUrl;
                   thumbnailUrl = content.thumbnailUrl;
                   comment = person.currentShare.comment;
-                  shareList += '<li><span id="' + updateKey + '">';
+                  shareList += '<li><span class="drag-span" id="' + updateKey + '">';
+//                  shareList += '<span class="hidden user-memberid">' + memberid + '</span>'
                   shareList += '<img class="user-pic" height="40" width="40" src="' + pictureUrl + '"/>';
-                  shareList += firstName + ' ' + lastName + ' &#0187 ';
+                  shareList += '<span class="user-name">' + firstName + ' ' + lastName + '</span> &#0187 ';
+                  shareList += '<span class="user-headline">' + headline + '</span>';
                   shareList += '<a href="' + submittedUrl + '" target="_blank">';
                   shareList += '<img class="thumbnail" height="40" src="' + thumbnailUrl  + '"/>';
                   shareList += title;

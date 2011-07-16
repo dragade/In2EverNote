@@ -35,7 +35,7 @@ li {
   list-style: none;
 }
 
-li span {
+li .drag-span {
   text-decoration: none;
   color: #000;
   border: 3px dashed #999;
@@ -46,19 +46,19 @@ li span {
   width: 300px;
 }
 
-li span a {
+li .drag-span a {
   font-size: 10px;
   text-decoration: none;
 }
 
-li span .user-pic {
+li .drag-span .user-pic {
   float: left;
   margin-right: 5px;
   vertical-align: top;
   display: block;
 }
 
-li span .thumbnail {
+li .drag-span .thumbnail {
   vertical-align: top;
   display: inline-block;
   float: right;
@@ -139,4 +139,8 @@ h1 {
 
 .comment {
     font-style: italic;
+}
+
+.hidden {
+    display: none;
 }

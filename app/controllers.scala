@@ -28,6 +28,8 @@ import com.evernote.edam.`type`.{Note, Notebook}
 
 
 /**
+ * This is the main controller for In2EverNote done for HackDay 7/15/2011.
+ *
  * The main controller for the application.
  * There are four actions: index, connections, profile, and nus
  *
@@ -407,6 +409,13 @@ object Application extends Controller {
     new NoteStore.Client(noteStoreProt, noteStoreProt);
   }
 
+  def findSpanValue(noteHtml:String, clazz : String) : String = {
+    val startMarker = "<span class=\"" + clazz + "\">"
+    val idx = noteHtml.indexOf(startMarker)
+    val idx2 = idx + startMarker.size
+    val idx3 = noteHtml.indexOf("</span", idx2)
+    noteHtml.substring(idx2, idx3)
+  }
 
   case class SaveNoteResult(guid: String, didSave: Boolean)
 
@@ -418,9 +427,13 @@ object Application extends Controller {
 //    val apiResponse = makeApiCall(token, restUrl)
 //    val shares = parseNusXml(apiResponse)
 
+    //we want to store the note with the person's name (and ID to make it unique)
+    //val memberid = findSpanValue(noteHtml, "hidden user-memberid")
+    val membername = findSpanValue(noteHtml, "user-name")
+
     //now go through the shares and find the updateKey
     val enml = makeENML(noteHtml)
-    println("Created enml:\n" + enml);
+    //println("Created enml:\n" + enml);
 
     //now try to save the note to our In2EverNote Notebook
     val evernoteToken = session.get(KEY_EVERNOTE_TOKEN)
@@ -428,27 +441,34 @@ object Application extends Controller {
     val linkedInNotebook = findLinkedInNotebook(noteStore);
 
     val note = new Note()
-    note.setTitle("foo bar " + System.currentTimeMillis())
+    val noteTitle = membername
+    note.setTitle(noteTitle)
     note.setContent(enml)
     note.setNotebookGuid(session.get(KEY_EVERNOTE_NOTEBOOK_GUID))
 
-    val newNote = noteStore.createNote(evernoteToken, note);
-    println("Created new note with guid " + newNote.getGuid)
-    val result = SaveNoteResult(newNote.getGuid,true)
-    Json(result)
+    try {
+      val newNote = noteStore.createNote(evernoteToken, note);
+      println("Created new note with guid " + newNote.getGuid)
+      val result = SaveNoteResult(newNote.getGuid,true)
+      Json(result)
+    }
+    catch {
+      case e : Exception =>
+        println("Failed to save note\n" + enml);
+        e.printStackTrace();
+        Json(SaveNoteResult("",false))
+    }
   }
 
   /**
    * Since EverNote ML is similar to XHTML, we can just re-use the display of the note!
    */
   def makeENML(noteHtml : String) : String = {
-    println("Got noteHtml:\n" + noteHtml)
+//    println("Got noteHtml:\n" + noteHtml)
 
-    //strip out the classes
-    val c1 = noteHtml.replace("class=\"user-pic\"","").
-      replace("class=\"thumbnail\"","").
-      replace("class=\"comment\"","")
-
+    //strip out the classes and ids
+    val c0 = noteHtml.replaceAll( """ class=".*?"""", " ")
+    val c1 = c0.replaceAll( """ id=".*?"""", " ")
     val sb = new StringBuilder(c1)
 
     //have to add in </img>
