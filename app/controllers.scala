@@ -272,6 +272,21 @@ object Application extends Controller {
     })
   }
 
+  case class Share(val firstName: String, val lastName: String, val headline :String, val submittedUrl :String, val title:String)
+
+  private def parseNusXml(apiResponse: String) : Seq[Share]= {
+//    val xml = XML.loadString(apiResponse)
+//    val people = xml \\ "person"
+//    people.map(p => {
+//      val firstName = (p \ "first-name").text
+//      val lastName = (p \ "last-name").text
+//      val picture = (p \ "picture-url").text
+//      Person(firstName, lastName, picture)
+//    })
+    List()
+  }
+
+
   // page to go to after linkedin login to show the evernote login info
   def evernoteindex(oauth_token: String, oauth_verifier: String) = {
     def showEverNoteLogin(token: Token): Result = {
@@ -372,6 +387,19 @@ object Application extends Controller {
     listNotes();
     Template(numNotebooks)
     }
+  }
+
+
+  case class SaveNoteResult(numShares: Int, didSave: Boolean)
+
+  /**
+   * Saves the share to EverNote (We look it back up to avoid letting someone "save" a fake share.
+   */
+  def savenote(updateKey : String) = {
+//    val restUrl = "http://api.linkedin.com/v1/people/~/network/updates?type=SHAR&format=json"
+//    val apiResponse = makeApiCall(token, restUrl)
+    val result = SaveNoteResult(5,true)
+    Json(result)
   }
 
   /**

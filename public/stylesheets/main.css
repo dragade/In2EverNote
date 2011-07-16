@@ -136,3 +136,7 @@ h1 {
   margin-top: 0;
   vertical-align: top;
 }
+
+.comment {
+    font-style: italic;
+}

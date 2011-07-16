@@ -8,13 +8,20 @@ function handlePersonImageError(source){
     return true;
 }
 
-shareList = '<ul>';
 
+function saveToEverNote(updateKey) {
+    console.log("Just dropped share " + updateKey);
+}
+
+
+shareList = '<ul>';
 numShares = 0;
+
 function mainParse(data) {
 /*    console.log("json I got back: " + JSON.stringify(data)); */
     $.each(data.values, function(valueidx, value){
-        var firstName, lastName, pictureUrl, title, submittedUrl, thumbnailUrl;
+        var updateKey, firstName, lastName, pictureUrl, title, submittedUrl, thumbnailUrl, comment;
+        updateKey = value.updateKey;
         person = value.updateContent.person;
         if (person) {
           firstName = person.firstName;
@@ -27,13 +34,18 @@ function mainParse(data) {
                   title = content.title;
                   submittedUrl = content.submittedUrl;
                   thumbnailUrl = content.thumbnailUrl;
-                  shareList += '<li><span id="' + valueidx + '">';
+                  comment = person.currentShare.comment;
+                  shareList += '<li><span id="' + updateKey + '">';
                   shareList += '<img class="user-pic" height="40" width="40" src="' + pictureUrl + '"/>';
                   shareList += firstName + ' ' + lastName + ' &#0187 ';
                   shareList += '<a href="' + submittedUrl + '" target="_blank">';
                   shareList += '<img class="thumbnail" height="40" src="' + thumbnailUrl  + '"/>';
                   shareList += title;
-                  shareList += '</a>\n</li>';
+                  shareList += '</a>\n';
+                  if (comment) {
+                    shareList += '<p class="comment">' + comment + '</p>';
+                  }
+                  shareList += '</li>';
                   numShares += 1;
               }
           }
@@ -87,10 +99,12 @@ function mainParse(data) {
     addEvent(bin, 'drop', function (e) {
       if (e.stopPropagation) e.stopPropagation(); // stops the browser from redirecting...why???
 
-      var el = document.getElementById(e.dataTransfer.getData('Text'));
+      var shareID = e.dataTransfer.getData('Text');
+      var el = document.getElementById(shareID);
       el.parentNode.removeChild(el);
 
-      console.log("in drop() got " + el);
+      //make the ajax call here to save the share
+      saveToEverNote(shareID)
 
       // stupid nom text + fade effect
       bin.className = '';
