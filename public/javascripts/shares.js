@@ -45,14 +45,14 @@ function mainParse(data) {
                   shareList += '<li><span class="drag-span" id="' + updateKey + '">';
 //                  shareList += '<span class="hidden user-memberid">' + memberid + '</span>'
                   shareList += '<img class="user-pic" height="40" width="40" src="' + pictureUrl + '"/>';
-                  shareList += '<span class="user-name">' + firstName + ' ' + lastName + '</span> &#0187 ';
-                  shareList += '<span class="user-headline">' + headline + '</span>';
+                  shareList += '<span class="user-name">' + firstName + ' ' + lastName + '</span><br/>';
+                  shareList += '<span class="user-headline">' + headline + '</span><br/>';
                   shareList += '<a href="' + submittedUrl + '" target="_blank">';
                   shareList += '<img class="thumbnail" height="40" src="' + thumbnailUrl  + '"/>';
                   shareList += title;
                   shareList += '</a>\n';
                   if (comment) {
-                    shareList += '<p class="comment">' + comment + '</p>';
+                    shareList += '<p class="comment">"' + comment + '"</p>';
                   }
                   shareList += '</li>';
                   numShares += 1;

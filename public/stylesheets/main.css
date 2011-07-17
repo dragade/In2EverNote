@@ -42,7 +42,7 @@ li {
 li .drag-span {
   text-decoration: none;
   color: #000;
-  border: 3px dashed #999;
+  border: 3px dashed #069;
   /*border-radius: 25px;*/
   /*-moz-border-radius: 25px; *//* Firefox 3.6 and earlier */
   background: #eee;
@@ -62,6 +62,10 @@ li .drag-span .user-pic {
   margin-right: 5px;
   vertical-align: top;
   display: block;
+}
+
+li .drag-span .user-name {
+    font-weight: bold;
 }
 
 li .drag-span .thumbnail {
@@ -97,7 +101,6 @@ li.over {
   background: url(/public/images/evernote.jpeg) no-repeat;
   height: 199px;
   width: 253px;
-  float: left;
   border: 5px solid #000;
   position: relative;
   margin-top: 0;
@@ -155,6 +158,7 @@ h2 {
 
 .comment {
     font-style: italic;
+    text-align: left;
 }
 
 .hidden {
@@ -183,4 +187,24 @@ h2 {
     margin-bottom: 0px;
     background: none;
     border: none;
+}
+
+#morebutton {
+    width: 120;
+    height: 25;
+    background-color: #069;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    margin: 0 auto;
+    margin-top: 20px;
+    text-align: center;
+    float: right;
+}
+
+#leftcol {
+    float: left;
+    vertical-align: top;
+    padding-top: 0;
+    margin-top: 0;
 }
