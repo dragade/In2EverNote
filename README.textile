@@ -1,9 +1,11 @@
 h2. In2EverNote
 
-This is a simple example webapp written using the Play! framework, scala, and the LinkedIn developer APIs
+This is a utility webapp written using the Play! framework, scala, and the LinkedIn developer APIs
 and the EverNote APIS to save important shares from connections on LinkedIn.
 
-The app also uses scribe-java to handle the oauth flow.
+The app also uses scribe-java to handle the oauth flow, and is deployed to Google App Engine.
+
+Check out https://in2evernote.appspot.com/
 
 * Be sure to edit ApiKeys.scala and fill in the apiKey and secretKey you obtain from http://developer.linkedin.com, otherwise the app won't work*
 
@@ -21,7 +23,7 @@ h4. Running
 This is a Play 1.1.1 app with GAE 1.4 and Scala 0.8 -- other combinations seem unstable 
 or run into problems trying to deploy to tomcat or gae.
 
-play run PlayLinkedIn
+play run In2EverNote
 
 then go to http://localhost:9000
 

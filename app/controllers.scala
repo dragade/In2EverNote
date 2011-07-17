@@ -304,6 +304,8 @@ object Application extends Controller {
       val apiResponse = makeApiCall(token, restUrl)
       val people = parseConnectionXml(apiResponse)
       val myProfile = people.head
+      val today = new java.util.Date
+      println("Cool, " + myProfile.firstName + " " + myProfile.lastName + " logged in at " + today.toString)
       Template(myProfile)
     }
     doAndRedirectToIndexOnError(oauth_token, oauth_verifier, showEverNoteLogin)
