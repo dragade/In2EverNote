@@ -12,7 +12,7 @@
     You are logged into LinkedIn. <br/>
     Now connect to Evernote.<br/>
 
-<span class="fine-print">Need a <a href="http://sandbox.evernote.com/" target="_blank">SANDBOX Evernote account</a>?</span>
+<span class="fine-print">Need an <a href="http://www.evernote.com/" target="_blank">Evernote account</a>?</span>
     <br/><br/>
 
 <form class="intro-text" method="POST" action="/application/evernote">
@@ -20,6 +20,8 @@
     password: <input type="password" name="password"/><br/>
     <img height="30" src="/public/images/evernote-elephant.jpeg">&nbsp;<input type="submit" value="Sign in"/>
 </form>
+<span class="error-login">${failureMsg}</span>
+
 </p>
 </body>
 </html>

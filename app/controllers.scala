@@ -62,9 +62,13 @@ object Application extends Controller {
     .build();
 
 
-  val evernoteHost = "sandbox.evernote.com"
+  //val evernoteHost = "sandbox.evernote.com"
+  val evernoteHost = "www.evernote.com"
+  println("Using evernoteHost: " + evernoteHost)
   val userStoreUrl = "https://" + evernoteHost + "/edam/user"
   val noteStoreUrlBase = "https://" + evernoteHost + "/edam/note/"
+
+  val notebookName = "In2Evernote"
 
   // Change the User Agent to a string that describes your application, using
   // the form company name/app name and version. Using a unique user agent string
@@ -297,7 +301,7 @@ object Application extends Controller {
 
 
   // page to go to after linkedin login to show the evernote login info
-  def evernoteindex(oauth_token: String, oauth_verifier: String) = {
+  def evernoteindex(oauth_token: String, oauth_verifier: String, failMsg: String) = {
     def showEverNoteLogin(token: Token): Result = {
       println("Getting ready to make a profile call")
       val restUrl = "http://api.linkedin.com/v1/people/~:(id,first-name,last-name,picture-url)"
@@ -306,7 +310,9 @@ object Application extends Controller {
       val myProfile = people.head
       val today = new java.util.Date
       println("Cool, " + myProfile.firstName + " " + myProfile.lastName + " logged in at " + today.toString)
-      Template(myProfile)
+      if (failMsg != null) { println("failMsg=" + failMsg) }
+      val failureMsg = failMsg
+      Template(myProfile,failureMsg)
     }
     doAndRedirectToIndexOnError(oauth_token, oauth_verifier, showEverNoteLogin)
   }
@@ -325,6 +331,7 @@ object Application extends Controller {
       var userStore :  UserStore.Client = null
       var authToken : String = null
       var newNoteGuid : String = null
+      var failMsg : String = null
 
       val userStoreTrans = new THttpClient(userStoreUrl);
       userStoreTrans.setCustomHeader("User-Agent", userAgent);
@@ -361,45 +368,54 @@ object Application extends Controller {
             System.err.println("Your consumer key was not accepted by " + evernoteHost);
             System.err.println("This sample client application requires a client API key. If you requested a web service API key, you must authenticate using OAuth as shown in sample/java/oauth");
             System.err.println("If you do not have an API Key from Evernote, you can request one from http://www.evernote.com/about/developer/api");
+            failMsg = "Application error"
           } else if (parameter.equals("username")) {
-            System.err.println("You must authenticate using a username and password from " + evernoteHost);
+            failMsg = "You must authenticate using a username and password from " + evernoteHost;
             if (evernoteHost.equals("www.evernote.com") == false) {
-              System.err.println("Note that your production Evernote account will not work on " + evernoteHost + ",");
-              System.err.println("you must register for a separate test account at https://" + evernoteHost + "/Registration.action");
+              failMsg += "Note that your production Evernote account will not work on " + evernoteHost + ",";
+              failMsg += "you must register for a separate test account at https://" + evernoteHost + "/Registration.action";
             }
           } else if (parameter.equals("password")) {
-            System.err.println("The password that you entered is incorrect");
+            failMsg = "The password that you entered is incorrect";
           }
         }
 
-        throw new RuntimeException("failed to auth to evernote");
+        //throw new RuntimeException("failed to auth to evernote");
+        failMsg = "Failed to login to evernote!"
       }
 
-      // The result of a succesful authentication is an opaque authentication token
-      // that you will use in all subsequent API calls. If you are developing a
-      // web application that authenticates using OAuth, the OAuth access token
-      // that you receive would be used as the authToken in subsquent calls.
-      authToken = authResult.getAuthenticationToken();
-      session.put(KEY_EVERNOTE_TOKEN,authToken)
+      if (failMsg == null) {
+        // The result of a succesful authentication is an opaque authentication token
+        // that you will use in all subsequent API calls. If you are developing a
+        // web application that authenticates using OAuth, the OAuth access token
+        // that you receive would be used as the authToken in subsquent calls.
+        authToken = authResult.getAuthenticationToken();
+        session.put(KEY_EVERNOTE_TOKEN,authToken)
 
-      // The Evernote NoteStore allows you to accessa user's notes.
-      // In order to access the NoteStore for a given user, you need to know the
-      // logical "shard" that their notes are stored on. The shard ID is included
-      // in the URL used to access the NoteStore.
-      val user = authResult.getUser();
-      val shardId = user.getShardId();
-      session.put(KEY_EVERNOTE_SHARD_ID, shardId)
-      System.out.println("Successfully authenticated as " + user.getUsername());
+        // The Evernote NoteStore allows you to accessa user's notes.
+        // In order to access the NoteStore for a given user, you need to know the
+        // logical "shard" that their notes are stored on. The shard ID is included                   A
+        // in the URL used to access the NoteStore.
+        val user = authResult.getUser();
+        val shardId = user.getShardId();
+        session.put(KEY_EVERNOTE_SHARD_ID, shardId)
+        System.out.println("Successfully authenticated as " + user.getUsername());
 
-      val noteStore = getNoteStore();
-      val linkedInNotebook = findLinkedInNotebook(noteStore);
-      val linkedInNotebookGuid = linkedInNotebook.getGuid
-      session.put(KEY_EVERNOTE_NOTEBOOK_GUID, linkedInNotebookGuid)
+        val noteStore = getNoteStore();
+        val linkedInNotebook = findLinkedInNotebook(noteStore);
+        val linkedInNotebookGuid = linkedInNotebook.getGuid
+        session.put(KEY_EVERNOTE_NOTEBOOK_GUID, linkedInNotebookGuid)
 
-      val notebooks = noteStore.listNotebooks(authToken);
-      val numNotebooks = notebooks.size
-      println("There are " + numNotebooks + "notebooks. In2EverNote guid is " + linkedInNotebookGuid)
-      Template(numNotebooks, linkedInNotebookGuid)
+        val notebooks = noteStore.listNotebooks(authToken);
+        val numNotebooks = notebooks.size
+        println("There are " + numNotebooks + "notebooks. " + notebookName + " guid is " + linkedInNotebookGuid)
+        Template(numNotebooks, linkedInNotebookGuid)
+      }
+      else {
+        println("!!!!!!!!!!")
+        println(failMsg)
+        Action(evernoteindex(null,null,failMsg))
+      }
     }
   }
 
@@ -442,7 +458,7 @@ object Application extends Controller {
     val enml = makeENML(noteHtml)
     //println("Created enml:\n" + enml);
 
-    //now try to save the note to our In2EverNote Notebook
+    //now try to save the note to our In2Evernote Notebook
     val evernoteToken = session.get(KEY_EVERNOTE_TOKEN)
     val noteStore  = getNoteStore()
     val linkedInNotebook = findLinkedInNotebook(noteStore);
@@ -504,16 +520,29 @@ object Application extends Controller {
   def findLinkedInNotebook(noteStore : NoteStore.Client) : Notebook = {
     val authToken = session.get(KEY_EVERNOTE_TOKEN)
     val notebooks = noteStore.listNotebooks(authToken);
-    var ourbooks = notebooks.filter(n => {"In2EverNote" == n.getName})
-    if (ourbooks.isEmpty) {
-      val ourbook = new Notebook
-      ourbook.setName("In2EverNote")
+    var ourbooks = notebooks.filter(n => {notebookName == n.getName})
+    val rv = if (ourbooks.isEmpty) {
+      println("User does not have notebook: " + notebookName)
+      var ourbook = new Notebook
+      ourbook.setName(notebookName)
       noteStore.createNotebook(authToken, ourbook)
-      session.put(KEY_EVERNOTE_NOTEBOOK_GUID, ourbook.getGuid)
-      println("Created notebook " + ourbook.getName + " with guid " + ourbook.getGuid)
+      if (ourbook.getGuid == null) {
+        println("created notebook but got null guid, querying back...")
+        ourbook = findLinkedInNotebook(noteStore)
+        println("found notebook " + ourbook.getName + " with guid " + ourbook.getGuid)
+      }
+      else {
+        println("Created notebook " + ourbook.getName + " with guid " + ourbook.getGuid)
+      }
       ourbook
     }
-    else ourbooks.head
+    else {
+      val ourbook = ourbooks.head
+      println("Found notebook: " + ourbook.getName)
+      ourbook
+    }
+    session.put(KEY_EVERNOTE_NOTEBOOK_GUID, rv.getGuid)
+    rv
   }
 
   /**

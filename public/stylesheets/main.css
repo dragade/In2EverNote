@@ -222,3 +222,19 @@ h2 {
     text-align: center;
     float: right;
 }
+
+.error-login {
+    display: block;
+    text-align: center;
+    width: 422px;
+    height: auto;
+    margin: 0 auto;
+    padding-top: 0px;
+    margin-bottom: 0px;
+    font-family: Arial;
+    font-size: 24px;
+    background: none;
+    border: none;
+    color: red;
+    font-weight:bold;
+}
