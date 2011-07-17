@@ -239,17 +239,22 @@ object Application extends Controller {
    * Gets share data and outputs a simple JSON response with just the data we need
    * to handle in the UI.
    */
-  def shares(oauth_token: String, oauth_verifier: String) = {
+  def shares(oauth_token: String, oauth_verifier: String, offset: String) = {
+    val count = 10
+    val start = if (offset == null) 0 else (offset.toInt * count)
+
     def doShares(token: Token): Result = {
-      println("Getting ready to make an NUS SHAR call")
-      val restUrl = "http://api.linkedin.com/v1/people/~/network/updates?type=SHAR&format=json&count=50"
+      println("Getting ready to make an NUS SHAR call with start " + start)
+      val restUrl = "http://api.linkedin.com/v1/people/~/network/updates?type=SHAR&format=json&count=" + count + "&start=" + start
+      println("\t" + restUrl)
       val apiResponse = makeApiCall(token, restUrl)
       Json(apiResponse)
     }
 
     if (inDebugMode) {
-      println("Reading saved data from shares.json")
-      val jsondata = scala.io.Source.fromFile("In2EverNote/public/shares.json").getLines().mkString("\n")
+      println("Reading saved data from shares2.json")
+      val jsondata = scala.io.Source.fromFile("In2EverNote/test/shares2.json").getLines().mkString("\n")
+      println("read\n" + jsondata)
       Json(jsondata)
     }
     else doAndRedirectToIndexOnError(oauth_token, oauth_verifier, doShares)
@@ -466,10 +471,12 @@ object Application extends Controller {
   def makeENML(noteHtml : String) : String = {
 //    println("Got noteHtml:\n" + noteHtml)
 
-    //strip out the classes and ids
+    //strip out the classes and ids and onerror
     val c0 = noteHtml.replaceAll( """ class=".*?"""", " ")
     val c1 = c0.replaceAll( """ id=".*?"""", " ")
-    val sb = new StringBuilder(c1)
+    val c2 = c1.replaceAll( """ onerror=".*?"""", " ")
+    val c3 = c2.replaceAll("<br>","<br></br>")
+    val sb = new StringBuilder(c3)
 
     //have to add in </img>
     val idx1 = sb.indexOf("<img")
@@ -499,7 +506,8 @@ object Application extends Controller {
     if (ourbooks.isEmpty) {
       val ourbook = new Notebook
       ourbook.setName("In2EverNote")
-      noteStore.createNotebook(authToken, ourbook);
+      noteStore.createNotebook(authToken, ourbook)
+      session.put(KEY_EVERNOTE_NOTEBOOK_GUID, ourbook.getGuid)
       println("Created notebook " + ourbook.getName + " with guid " + ourbook.getGuid)
       ourbook
     }

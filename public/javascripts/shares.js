@@ -8,6 +8,12 @@ function handlePersonImageError(source){
     return true;
 }
 
+function handleArticleImageError(source){
+    source.src = "/public/images/article.jpeg";
+    source.onerror = "";
+    return true;
+}
+
 function handleSaveResult(result) {
     console.log("Got save result " + JSON.stringify(result));
 }
@@ -20,53 +26,72 @@ function saveToEverNote(el) {
 
 
 shareList = '<ul>';
-numShares = 0;
+pageNumber = 0;
 
 function mainParse(data) {
+    shareList = '<ul>';
+    numShares = 0;
+
 /*    console.log("json I got back: " + JSON.stringify(data)); */
     $.each(data.values, function(valueidx, value){
         var updateKey, firstName, lastName, pictureUrl, title, submittedUrl, thumbnailUrl, comment, headline, memberid;
         updateKey = value.updateKey;
         person = value.updateContent.person;
-        if (numShares < 10 && person) {
-          firstName = person.firstName;
-          lastName = person.lastName;
-          pictureUrl = person.pictureUrl;
-          headline = person.headline;
-          memberid = person.id;
+        if (numShares < 10) {
+          if (person) {
+              firstName = person.firstName;
+              lastName = person.lastName;
+              pictureUrl = person.pictureUrl;
+              headline = person.headline;
+              memberid = person.id;
 
-          if (person.currentShare) {
-              content = person.currentShare.content;
-              if (content) {
-                  title = content.title;
-                  submittedUrl = content.submittedUrl;
-                  thumbnailUrl = content.thumbnailUrl;
-                  comment = person.currentShare.comment;
-                  shareList += '<li><span class="drag-span" id="' + updateKey + '">';
-//                  shareList += '<span class="hidden user-memberid">' + memberid + '</span>'
-                  shareList += '<img class="user-pic" height="40" width="40" src="' + pictureUrl + '"/>';
-                  shareList += '<span class="user-name">' + firstName + ' ' + lastName + '</span><br/>';
-                  shareList += '<span class="user-headline">' + headline + '</span><br/>';
-                  shareList += '<a href="' + submittedUrl + '" target="_blank">';
-                  shareList += '<img class="thumbnail" height="40" src="' + thumbnailUrl  + '"/>';
-                  shareList += title;
-                  shareList += '</a>\n';
-                  if (comment) {
-                    shareList += '<p class="comment">"' + comment + '"</p>';
+              if (person.currentShare) {
+                  content = person.currentShare.content;
+                  if (content) {
+                      title = content.title;
+                      submittedUrl = content.submittedUrl;
+                      thumbnailUrl = content.thumbnailUrl;
+                      comment = person.currentShare.comment;
+                      shareList += '<li><span class="drag-span" id="' + updateKey + '">';
+    //                  shareList += '<span class="hidden user-memberid">' + memberid + '</span>'
+                      shareList += '<img class="user-pic" height="40" width="40" src="' + pictureUrl + '" onerror="handlePersonImageError(this);"/>';
+                      shareList += '<span class="user-name">' + firstName + ' ' + lastName + '</span><br/>';
+                      shareList += '<span class="user-headline">' + headline + '</span><br/>';
+                      shareList += '<a href="' + submittedUrl + '" target="_blank">';
+                      shareList += '<img class="thumbnail" height="40" src="' + thumbnailUrl  + '" onerror="handleArticleImageError(this);"/>';
+                      shareList += title;
+                      shareList += '</a>\n';
+                      if (comment) {
+                        shareList += '<p class="comment">"' + comment + '"</p>';
+                      }
+                      shareList += '</li>';
+                      numShares += 1;
                   }
-                  shareList += '</li>';
-                  numShares += 1;
+                  else {
+                      console.log("no content for " + valueidx);
+                  }
+              }
+              else {
+                console.log("no current share for " + valueidx);
               }
           }
           else {
-            console.log("no share for " + valueidx);
+              console.log("no person for " + valueidx)
           }
         }
     });
     shareList += '</ul>';
 
+    if (numShares == 0) {
+        shareList = "No shares data!"
+    }
+
+    pageNumber += 1;
+
     $('#shares').html(shareList);
     console.log("There are " + numShares + " shares");
+
+    $('#curoffset').text(pageNumber)
 
     var yum = document.createElement('p');
     var msie = /*@cc_on!@*/0;
@@ -146,8 +171,15 @@ function mainParse(data) {
 
 }
 
-$(function(){
-	$.getJSON('/application/shares', mainParse)
-});
+function queryShares() {
 
+    var currentOffSet = $('#curoffset').text()
+    console.log('Making share request for pageNumber: ' + currentOffSet);
+    var url = "/application/shares?offset=" + currentOffSet;
+	$.getJSON(url, mainParse)
+}
+
+$(function(){queryShares()});
+
+$('#morebutton').live('click', queryShares);
 
