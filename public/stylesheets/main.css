@@ -238,3 +238,20 @@ h2 {
     color: red;
     font-weight:bold;
 }
+#sharing {
+    text-align: center;
+    display: inline-block;
+    margin: 0 auto;
+    padding-bottom: 5px;
+}
+.linkedin {
+    float: left;
+    padding-right: 5px;
+}
+.facebook {
+    float: left;
+}
+.twitter {
+    float: left;
+    padding-right: 5px;
+}
