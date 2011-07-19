@@ -41,7 +41,7 @@ import com.evernote.edam.`type`.{Note, Notebook}
 object Application extends Controller {
 
   val inDebugMode = false
-  println("InDebugMode = " + inDebugMode)
+//  println("InDebugMode = " + inDebugMode)
 
   // Values stored in the session
   val KEY_REQUEST_TOKEN = "requestToken"
@@ -64,7 +64,7 @@ object Application extends Controller {
 
   //val evernoteHost = "sandbox.evernote.com"
   val evernoteHost = "www.evernote.com"
-  println("Using evernoteHost: " + evernoteHost)
+  //println("Using evernoteHost: " + evernoteHost)
   val userStoreUrl = "https://" + evernoteHost + "/edam/user"
   val noteStoreUrlBase = "https://" + evernoteHost + "/edam/note/"
 
@@ -82,9 +82,14 @@ object Application extends Controller {
    */
   def index = Template()
 
+  def undefined =  {
+    println("request for undefined")
+    NoContent
+  }
+
   // just removes all 4 keys from the session
   private def cleanSession() = {
-    println("Cleaning session!")
+    //println("Cleaning session!")
     session.remove(KEY_ACCESS_TOKEN)
     session.remove(KEY_ACCESS_TOKEN_SECRET)
     session.remove(KEY_REQUEST_TOKEN)
@@ -95,8 +100,8 @@ object Application extends Controller {
   private def rebuildRequestToken() = {
     val token = session.get(KEY_REQUEST_TOKEN)
     val secret = session.get(KEY_REQUEST_TOKEN_SECRET)
-    println("Rebuilding with request token        " + token)
-    println("Rebuilding with request token secret " + secret)
+//    println("Rebuilding with request token        " + token)
+//    println("Rebuilding with request token secret " + secret)
     new Token(token, secret)
   }
 
@@ -124,15 +129,15 @@ object Application extends Controller {
 
     if (accessTokenToken != null && accessTokenSecret != null) {
       //have the access token already so get its parts out of the session and reconstruct
-      println("Already logged in")
-      println("session access token         :" + accessTokenToken)
-      println("session access token secret  :" + accessTokenSecret)
+//      println("Already logged in")
+//      println("session access token         :" + accessTokenToken)
+//      println("session access token secret  :" + accessTokenSecret)
       val accessToken = new Token(accessTokenToken, accessTokenSecret)
       (accessToken, !needsRedirect)
     }
     else if (oauth_verifier != null) {
       //got redirected from LinkedIn and the oauth_verifier is passed as a parameter
-      println("Redirected from LinkedIn with oauth_verifier " + oauth_verifier)
+      //println("Redirected from LinkedIn with oauth_verifier " + oauth_verifier)
       val verifier = new Verifier(oauth_verifier)
       val accessToken = oauthService.getAccessToken(rebuildRequestToken(), verifier);
       cleanSession();
@@ -140,9 +145,9 @@ object Application extends Controller {
       (accessToken, !needsRedirect)
     }
     else {
-      println("Fresh Start")
+      //println("Fresh Start")
       val requestToken = oauthService.getRequestToken()
-      println("got request token: " + requestToken.toString())
+      //println("got request token: " + requestToken.toString())
       (requestToken, needsRedirect)
     }
   }
@@ -179,7 +184,7 @@ object Application extends Controller {
     cleanSession();
     session.put(KEY_REQUEST_TOKEN, requestToken.getToken())
     session.put(KEY_REQUEST_TOKEN_SECRET, requestToken.getSecret())
-    println("Redirecting to " + url + "\n\n")
+    //println("Redirecting to " + url + "\n\n")
     Redirect(url)
   }
 
@@ -202,7 +207,7 @@ object Application extends Controller {
   // just gets my profile info and displays the XML data
   def profile(oauth_token: String, oauth_verifier: String) = {
     def doProfile(token: Token): Result = {
-      println("Getting ready to make a profile call")
+      //println("Getting ready to make a profile call")
       val restUrl = "http://api.linkedin.com/v1/people/~:(id,first-name,last-name,picture-url)"
       val apiResponse = makeApiCall(token, restUrl)
       Template(apiResponse)
@@ -214,7 +219,7 @@ object Application extends Controller {
   // just gets my network updates info and displays the XML data
   def nus(oauth_token: String, oauth_verifier: String) = {
     def doNus(token: Token): Result = {
-      println("Getting ready to make a nus call")
+      //println("Getting ready to make a nus call")
       val restUrl = "http://api.linkedin.com/v1/people/~/network/updates?scope=self"
       val apiResponse = makeApiCall(token, restUrl)
       Template(apiResponse)
@@ -228,7 +233,7 @@ object Application extends Controller {
    */
   def connections(oauth_token: String, oauth_verifier: String) = {
     def doConns(token: Token): Result = {
-      println("Getting ready to make a connections call")
+      //println("Getting ready to make a connections call")
       val restUrl = "http://api.linkedin.com/v1/people/~/connections:(id,first-name,last-name,picture-url)"
       val apiResponse = makeApiCall(token, restUrl)
       val people = parseConnectionXml(apiResponse)
@@ -248,9 +253,9 @@ object Application extends Controller {
     val start = if (offset == null) 0 else (offset.toInt * count)
 
     def doShares(token: Token): Result = {
-      println("Getting ready to make an NUS SHAR call with start " + start)
+      //println("Getting ready to make an NUS SHAR call with start " + start)
       val restUrl = "http://api.linkedin.com/v1/people/~/network/updates?type=SHAR&format=json&count=" + count + "&start=" + start
-      println("\t" + restUrl)
+      //println("\t" + restUrl)
       val apiResponse = makeApiCall(token, restUrl)
       Json(apiResponse)
     }
@@ -303,7 +308,7 @@ object Application extends Controller {
   // page to go to after linkedin login to show the evernote login info
   def evernoteindex(oauth_token: String, oauth_verifier: String, failMsg: String) = {
     def showEverNoteLogin(token: Token): Result = {
-      println("Getting ready to make a profile call")
+      //println("Getting ready to make a profile call")
       val restUrl = "http://api.linkedin.com/v1/people/~:(id,first-name,last-name,picture-url)"
       val apiResponse = makeApiCall(token, restUrl)
       val people = parseConnectionXml(apiResponse)
@@ -399,7 +404,7 @@ object Application extends Controller {
         val user = authResult.getUser();
         val shardId = user.getShardId();
         session.put(KEY_EVERNOTE_SHARD_ID, shardId)
-        System.out.println("Successfully authenticated as " + user.getUsername());
+        //System.out.println("Successfully authenticated as " + user.getUsername());
 
         val noteStore = getNoteStore();
         val linkedInNotebook = findLinkedInNotebook(noteStore);
@@ -408,11 +413,10 @@ object Application extends Controller {
 
         val notebooks = noteStore.listNotebooks(authToken);
         val numNotebooks = notebooks.size
-        println("There are " + numNotebooks + "notebooks. " + notebookName + " guid is " + linkedInNotebookGuid)
+        //println("There are " + numNotebooks + "notebooks. " + notebookName + " guid is " + linkedInNotebookGuid)
         Template(numNotebooks, linkedInNotebookGuid)
       }
       else {
-        println("!!!!!!!!!!")
         println(failMsg)
         Action(evernoteindex(null,null,failMsg))
       }
@@ -471,7 +475,7 @@ object Application extends Controller {
 
     try {
       val newNote = noteStore.createNote(evernoteToken, note);
-      println("Created new note with guid " + newNote.getGuid)
+      //println("Created new note with guid " + newNote.getGuid)
       val result = SaveNoteResult(newNote.getGuid,true)
       Json(result)
     }
@@ -522,23 +526,23 @@ object Application extends Controller {
     val notebooks = noteStore.listNotebooks(authToken);
     var ourbooks = notebooks.filter(n => {notebookName == n.getName})
     val rv = if (ourbooks.isEmpty) {
-      println("User does not have notebook: " + notebookName)
+      //println("User does not have notebook: " + notebookName)
       var ourbook = new Notebook
       ourbook.setName(notebookName)
-      noteStore.createNotebook(authToken, ourbook)
+      ourbook = noteStore.createNotebook(authToken, ourbook)
       if (ourbook.getGuid == null) {
-        println("created notebook but got null guid, querying back...")
+        //println("created notebook but got null guid, querying back...")
         ourbook = findLinkedInNotebook(noteStore)
-        println("found notebook " + ourbook.getName + " with guid " + ourbook.getGuid)
+        //println("found notebook " + ourbook.getName + " with guid " + ourbook.getGuid)
       }
-      else {
-        println("Created notebook " + ourbook.getName + " with guid " + ourbook.getGuid)
-      }
+//      else {
+//        //println("Created notebook " + ourbook.getName + " with guid " + ourbook.getGuid)
+//      }
       ourbook
     }
     else {
       val ourbook = ourbooks.head
-      println("Found notebook: " + ourbook.getName)
+      //println("Found notebook: " + ourbook.getName)
       ourbook
     }
     session.put(KEY_EVERNOTE_NOTEBOOK_GUID, rv.getGuid)
@@ -551,14 +555,14 @@ object Application extends Controller {
   def listNotes() {
     val authToken = session.get(KEY_EVERNOTE_TOKEN)
     // List all of the notes in the user's account
-    System.out.println("Listing all notes:");
+    println("Listing all notes:");
     val noteStore = getNoteStore()
 
     // First, get a list of all notebooks
     val notebooks = noteStore.listNotebooks(authToken);
 
     for (notebook <- notebooks) {
-      System.out.println("Notebook: " + notebook.getName());
+      println("Notebook: " + notebook.getName());
 
       // Next, search for the first 100 notes in this notebook, ordering by creation date
       val filter = new NoteFilter();
@@ -569,9 +573,9 @@ object Application extends Controller {
       val noteList : NoteList = noteStore.findNotes(authToken, filter, 0, 100);
       val notes = noteList.getNotes();
       for (note <- notes) {
-        System.out.println(" * " + note.getTitle());
+        println(" * " + note.getTitle());
       }
     }
-    System.out.println();
+    println();
   }
 }

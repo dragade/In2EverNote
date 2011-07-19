@@ -15,12 +15,12 @@ function handleArticleImageError(source){
 }
 
 function handleSaveResult(result) {
-    console.log("Got save result " + JSON.stringify(result));
+    //console.log("Got save result " + JSON.stringify(result));
 }
 
 function saveToEverNote(el) {
     noteHtml = el.innerHTML
-    console.log("Saving dropped share " + noteHtml);
+    //console.log("Saving dropped share " + noteHtml);
     $.post('/application/savenote', { noteHtml: noteHtml }, handleSaveResult);
 }
 
@@ -32,7 +32,7 @@ function mainParse(data) {
     shareList = '<ul>';
     numShares = 0;
 
-/*    console.log("json I got back: " + JSON.stringify(data)); */
+/*    //console.log("json I got back: " + JSON.stringify(data)); */
     $.each(data.values, function(valueidx, value){
         var updateKey, firstName, lastName, pictureUrl, title, submittedUrl, thumbnailUrl, comment, headline, memberid;
         updateKey = value.updateKey;
@@ -54,11 +54,22 @@ function mainParse(data) {
                       comment = person.currentShare.comment;
                       shareList += '<li><span class="drag-span" id="' + updateKey + '">';
     //                  shareList += '<span class="hidden user-memberid">' + memberid + '</span>'
-                      shareList += '<img class="user-pic" height="40" width="40" src="' + pictureUrl + '" onerror="handlePersonImageError(this);"/>';
+                      if (pictureUrl) {
+                        shareList += '<img class="user-pic" height="40" width="40" src="' + pictureUrl + '" onerror="handlePersonImageError(this);"/>';
+                      }
+                      else {
+                        shareList += '<img class="user-pic" height="40" width="40" src="/public/images/person0.jpg"/>';
+                      }
                       shareList += '<span class="user-name">' + firstName + ' ' + lastName + '</span><br/>';
                       shareList += '<span class="user-headline">' + headline + '</span><br/>';
                       shareList += '<a href="' + submittedUrl + '" target="_blank">';
-                      shareList += '<img class="thumbnail" height="40" src="' + thumbnailUrl  + '" onerror="handleArticleImageError(this);"/>';
+                      if (thumbnailUrl) {
+                        shareList += '<img class="thumbnail" height="40" src="' + thumbnailUrl  + '" onerror="handleArticleImageError(this);"/>';
+                      }
+                      else {
+                        shareList += '<img class="thumbnail" height="40" src="/public/images/article.jpeg" />';
+                      }
+
                       shareList += title;
                       shareList += '</a>\n';
                       if (comment) {
@@ -68,15 +79,15 @@ function mainParse(data) {
                       numShares += 1;
                   }
                   else {
-                      console.log("no content for " + valueidx);
+                      //console.log("no content for " + valueidx);
                   }
               }
               else {
-                console.log("no current share for " + valueidx);
+                //console.log("no current share for " + valueidx);
               }
           }
           else {
-              console.log("no person for " + valueidx)
+              //console.log("no person for " + valueidx)
           }
         }
     });
@@ -89,7 +100,7 @@ function mainParse(data) {
     pageNumber += 1;
 
     $('#shares').html(shareList);
-    console.log("There are " + numShares + " shares");
+    ////console.log("There are " + numShares + " shares");
 
     $('#curoffset').text(pageNumber)
 
@@ -100,7 +111,7 @@ function mainParse(data) {
 
 
     var links = document.querySelectorAll('li > span'), el = null;
-    console.log("there are " + links.length + " links");
+    ////console.log("there are " + links.length + " links");
     for (var i = 0; i < links.length; i++) {
       el = links[i];
 
@@ -136,11 +147,11 @@ function mainParse(data) {
 
       var shareID = e.dataTransfer.getData('Text');
       var el = document.getElementById(shareID);
-      el.parentNode.removeChild(el);
-
-
-      //make the ajax call here to save the share
-      saveToEverNote(el)
+      if (el){
+        el.parentNode.removeChild(el);
+        //make the ajax call here to save the share
+        saveToEverNote(el)
+      }
 
       // stupid nom text + fade effect
       bin.className = '';
@@ -168,18 +179,17 @@ function mainParse(data) {
       return false;
     });
 
-
+    return false;
 }
 
 function queryShares() {
-
     var currentOffSet = $('#curoffset').text()
-    console.log('Making share request for pageNumber: ' + currentOffSet);
+    ////console.log('Making share request for pageNumber: ' + currentOffSet);
     var url = "/application/shares?offset=" + currentOffSet;
 	$.getJSON(url, mainParse)
+    return false;
 }
 
 $(function(){queryShares()});
 
-$('#morebutton').live('click', queryShares);
-
+$('#morebutton').live('click', function() { queryShares(); return false; });
