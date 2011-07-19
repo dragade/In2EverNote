@@ -174,7 +174,7 @@ h2 {
     background: url('/public/images/greenbg.png');
     -moz-background-size: 100% 100%;
     Firefox 3.6 background-size: 100% 100%;
-    background-repeat:repeat;
+    background-repeat: repeat-x;
     background-position:center;
 }
 
